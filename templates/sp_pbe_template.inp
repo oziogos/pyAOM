@@ -1,0 +1,81 @@
+# Global settings
+&GLOBAL
+  ECHO_INPUT .false.
+  PRINT_LEVEL low
+  PROGRAM_NAME cp2k
+  PROJECT_NAME _GLOBAL_PROJECT_NAME_
+  RUN_TYPE energy
+  SAVE_MEM .true.
+  &TIMINGS
+    THRESHOLD 1.0e-3
+  &END
+&END GLOBAL
+# Energy & forces calculation
+&FORCE_EVAL
+  # Electronic structure
+  METHOD qs
+  STRESS_TENSOR none
+  # DFT settings
+  &DFT
+    # Basis set & pseudopotentials
+    BASIS_SET_FILE_NAME GTH_BASIS_SETS
+    POTENTIAL_FILE_NAME POTENTIAL
+    # Charge & multiplicity
+    CHARGE 0
+    MULTIPLICITY 1
+    SPIN_POLARIZED .true.
+    # Realspace multi-grids
+    &MGRID
+      CUTOFF _MGRID_CUTOFF_
+      REL_CUTOFF _MGRID_REL_CUTOFF_
+    &END MGRID
+    # QuickStep solver setting
+    &QS
+      EPS_DEFAULT 1.0e-10
+      EXTRAPOLATION ps
+      EXTRAPOLATION_ORDER 3 
+      MAP_CONSISTENT .true.
+    &END QS
+    # SCF procedure
+    &SCF
+      MAX_SCF _SCF_MAX_SCF_
+      SCF_GUESS atomic
+      EPS_SCF 1.0e-6
+      &PRINT
+        &RESTART on
+        &END
+      &END
+    &END SCF
+    # Exchange-correlation functional
+    &XC
+      &XC_FUNCTIONAL pbe
+      &END XC_FUNCTIONAL
+    &END XC
+    # Poisson solver
+    &POISSON
+      PERIODIC none
+      POISSON_SOLVER mt
+      &MT
+        ALPHA 7.0
+        REL_CUTOFF 2.0
+      &END MT
+    &END POISSON
+    &PRINT
+     &MO_CUBES
+      NHOMO _MO_CUBES_NHOMO_
+      NLUMO _MO_CUBES_NLUMO_
+      STRIDE _MO_CUBES_STRIDE_
+     &END MO_CUBES
+     &MO
+      CARTESIAN
+      OCCNUMS
+      EIGVALS
+      EIGVECS
+      &EACH
+       QS_SCF _SCF_MAX_SCF_
+      &END EACH
+     &END MO
+    &END PRINT
+  &END DFT
+  @INCLUDE _GLOBAL_PROJECT_NAME__subsys.include
+&END FORCE_EVAL
